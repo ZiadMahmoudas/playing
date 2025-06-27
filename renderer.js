@@ -34,6 +34,7 @@ class MenuScene extends Phaser.Scene {
         .setInteractive();
 
         optionsButton.on('pointerdown', () => {
+                this.registry.set('fromScene', 'MenuScene'); 
     this.scene.start('OptionsScene');
         });
 
@@ -214,14 +215,16 @@ class OptionsScene extends Phaser.Scene {
     backgroundColor: '#444',
     padding: { x: 20, y: 10 }
 }).setOrigin(0.5).setInteractive().on('pointerdown', () => {
-    const from = this.registry.get('fromScene');
-    if (from === 'MenuInsideGame') {
-        this.scene.stop('OptionsScene');
-        this.scene.resume('GameScene');
-        this.scene.launch('MenuInsideGame');
-    } else {
-        this.scene.start('MenuScene');
-    }
+   const from = this.registry.get('fromScene');
+this.registry.remove('fromScene');
+
+if (from === 'MenuInsideGame') {
+    this.scene.stop('OptionsScene');
+    this.scene.resume('GameScene');
+    this.scene.launch('MenuInsideGame');
+} else {
+    this.scene.start('MenuScene');
+}
 });
 
     }
@@ -334,6 +337,7 @@ class GameScene extends Phaser.Scene {
         this.scoreText;
          this.escKey;
         this.bgMusic;
+        this.gameOverMusic;
         this.jumpCount =0;
         this.spaceBar;
         this.level = 1;
@@ -346,6 +350,7 @@ this.load.image('sky', 'assets/sky.png');
 this.load.image('ground', 'assets/platform.png');
 this.load.image('star', 'assets/star (1).png');
 this.load.image('bomb', 'assets/bomb (1).png');
+this.load.audio("gameOver","assets/gameOver.mp3");
 this.load.spritesheet('dude', 'assets/dude (2).png', {
   frameWidth: 32,
   frameHeight: 48
@@ -372,7 +377,7 @@ this.scene.launch('MenuInsideGame');
         });
 
 this.platforms = this.physics.add.staticGroup();
-let ground = this.add.rectangle(500, 584, 1000, 32, 0x00ff00);
+let ground = this.add.rectangle(500, 584, 10000, 32, 0x00ff00);
 this.physics.add.existing(ground, true); 
 this.platforms.add(ground);
 
@@ -424,12 +429,13 @@ this.platforms.add(plat5);
 
         this.physics.add.collider(this.player, this.platforms);
 
-        this.stars = this.physics.add.group({
-            key: 'star',
-            repeat: 11,
-            setXY: { x: 12, y: 0, stepX: 70 }
-        });
-
+     this.stars = this.physics.add.group();
+for (let i = 0; i < 12; i++) {
+    const x = Phaser.Math.Between(100, this.scale.width - 100);
+    const y = Phaser.Math.Between(0, 300);
+    const star = this.stars.create(x, y, 'star');
+    star.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+}
         this.stars.children.iterate(child => {
             child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
         });
@@ -448,16 +454,6 @@ this.levelText = this.add.text(650, 16, 'Level: 1', {
         this.bombs = this.physics.add.group();
         this.physics.add.collider(this.bombs, this.platforms);
         this.physics.add.collider(this.player, this.bombs, this.hitBomb, null, this);
-
-this.physics.world.setBounds(0, 0, 1000, 10000);
-this.cameras.main.setBounds(0, 0, 1000, 10000);
-this.cameras.main.startFollow(this.player, true, 0.05, 0.05, 0, -200); 
-
-
-this.stars.children.iterate((child, index) => {
-    child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-    child.y -= index * 10; 
-});
        
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -505,9 +501,17 @@ collectStar(player, star) {
     this.scoreText.setText('Score: ' + this.score);
 
     if (this.stars.countActive(true) === 0) {
-        this.stars.children.iterate(child => {
-            child.enableBody(true, child.x, 0, true, true);
-        });
+  this.stars.children.iterate((child, index) => {
+    const spacing = 20;
+    const baseX = Phaser.Math.Between(100, this.scale.width - 100);
+    const baseY = this.player.y - Phaser.Math.Between(400, 600);
+
+    const offsetX = (index % 2 === 0 ? 1 : -1) * index * spacing + Phaser.Math.Between(-30, 30);
+    const finalX = Phaser.Math.Clamp(baseX + offsetX, 50, this.scale.width - 50);
+    const finalY = Phaser.Math.Clamp(baseY + Phaser.Math.Between(-50, 50), 50, this.scale.height - 100);
+
+    child.enableBody(true, finalX, finalY, true, true);
+});
 
 this.level++;
 this.levelText.setText('Level: ' + this.level);
@@ -515,8 +519,8 @@ this.levelText.setText('Level: ' + this.level);
 
 for (let i = 0; i < 3; i++) {
     const refY = this.platforms.getChildren().reduce((minY, p) => Math.min(minY, p.y), this.player.y);
-    const newY = refY - Phaser.Math.Between(200, 300);
-    const newX = Phaser.Math.Between(150, 650); 
+    const newY = refY - Phaser.Math.Between(200, 500);
+    const newX = Phaser.Math.Between(150, 600); 
 
     if (newY > 0) {
         const plat = this.add.rectangle(newX, newY, 120, 20, 0x00ff00); 
@@ -528,8 +532,8 @@ for (let i = 0; i < 3; i++) {
     }
 }
 
-if (this.level >= 5) {
-    const bombCount = this.level - 4; 
+if (this.level >= 1) {
+    const bombCount = this.level - 1; 
     for (let i = 0; i < bombCount; i++) {
         const x = Phaser.Math.Between(100, 700);
         const y = Phaser.Math.Between(this.player.y - 300, this.player.y - 100); 
@@ -544,9 +548,10 @@ if (this.level >= 5) {
 }
 hitBomb(player, bomb) {
   player.setTint(0xff0000);
-
+this.gameOverMusic = this.sound.add('gameOver', {  volume: 0.5 });
+this.gameOverMusic.play();
+this.registry.set('gameOver', this.gameOverMusic);
     this.physics.pause();
-
     if (this.bgMusic && this.bgMusic.isPlaying) {
         this.bgMusic.stop();
     }

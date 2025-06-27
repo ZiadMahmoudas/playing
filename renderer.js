@@ -240,10 +240,9 @@ class MenuInsideGame extends Phaser.Scene{
             this.scale.width,
             this.scale.height,
             0x000000,
-            0.7 // نسبة شفافية
+            0.7 
         ).setOrigin(0.5);
 
-        // إضافة عنوان للقائمة
         this.add.text(this.scale.width / 2, 100, 'Game Paused', {
             fontSize: '60px',
             fill: '#ffffff',
@@ -263,17 +262,14 @@ class MenuInsideGame extends Phaser.Scene{
         resumeGameButton.on('pointerdown', () => {
           const gameScene = this.scene.get('GameScene');
 if (gameScene && gameScene.physics.world.isPaused) {
-    gameScene.physics.resume(); // شغّل الفيزياء
+    gameScene.physics.resume(); 
 }
             if (gameScene && gameScene.bgMusic && !gameScene.bgMusic.isPlaying) {
                 gameScene.bgMusic.resume();
             }
-            this.scene.stop('MenuInsideGame'); // إغلاق مشهد القائمة الداخلية
+            this.scene.stop('MenuInsideGame'); 
         });
 
-        // ... (باقي أزرار Options و Exit Game)
-
-        // **زر Exit Game في القائمة الداخلية يجب أن يعود للقائمة الرئيسية**
         const exitButton = this.add.text(this.scale.width / 2, 480, 'Exit Game', {
             fontSize: '40px',
             fill: '#ff0000',
@@ -284,21 +280,19 @@ if (gameScene && gameScene.physics.world.isPaused) {
         .setInteractive();
 
         exitButton.on('pointerdown', () => {
-            // إيقاف كل المشاهد الحالية (MenuInsideGame و GameScene)
+
             this.scene.stop('MenuInsideGame');
             this.scene.stop('GameScene');
-            // استئناف أو بدء MenuScene
+
             this.scene.start('MenuScene');
 
-            // تأكد من إيقاف موسيقى الخلفية للعبة لو كانت لا تزال تعمل
             const gameScene = this.scene.get('GameScene');
             if (gameScene && gameScene.bgMusic && gameScene.bgMusic.isPlaying) {
                 gameScene.bgMusic.stop();
             }
         });
 
-        // **تعديل زر Options لينقل صح لمشهد OptionsScene**
-        const optionsButton = this.add.text(this.scale.width / 2, 360, 'Options', { // غيرت الـ y عشان المسافات
+        const optionsButton = this.add.text(this.scale.width / 2, 360, 'Options', {
             fontSize: '40px',
             fill: '#ffff00',
             backgroundColor: '#000000',
@@ -308,7 +302,7 @@ if (gameScene && gameScene.physics.world.isPaused) {
         .setInteractive();
 
 optionsButton.on('pointerdown', () => {
-    this.registry.set('fromScene', 'MenuInsideGame'); // 👈 مهم عشان نعرف نرجع صح
+    this.registry.set('fromScene', 'MenuInsideGame'); 
     const gameScene = this.scene.get('GameScene');
     if (gameScene) {
         gameScene.physics.pause(); 

@@ -1,0 +1,50 @@
+{
+  "name": "playing",
+  "version": "1.0.0",
+  "description": "A simple 2D game using Electron and Phaser.",
+  "main": "main.js",
+  "homepage": "./",
+  "scripts": {
+    "start": "electron .",
+    "build": "npm run clean && electron-builder",
+    "clean": "rimraf dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "game",
+    "2d",
+    "electron",
+    "phaser"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^29.3.0",
+    "electron-builder": "^24.9.1",
+    "rimraf": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.yourname.my2dgame",
+    "productName": "My 2D Game",
+    "copyright": "Copyright © 2024 Your Name",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "renderer.js",
+      "assets/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    }
+  },
+  "dependencies": {
+    "@electron/remote": "^2.1.2",
+    "phaser": "^3.90.0"
+  }
+}

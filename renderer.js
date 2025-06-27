@@ -141,7 +141,7 @@ class OptionsScene extends Phaser.Scene {
         super({ key: 'OptionsScene' });
     }
    preload() {
-        this.load.audio('bgMusic', '/assets/turn.m4a');
+        this.load.audio('bgMusic', 'assets/turn.m4a');
     }
     create() {
         this.add.text(700, 50, 'Options', {
@@ -347,7 +347,7 @@ this.levelText = null;
     }
 
     preload() {
-    this.load.audio("bgMusic",'/assets/turn.m4a');
+    this.load.audio("bgMusic",'assets/turn.m4a');
 this.load.image('sky', 'assets/sky.png');
 this.load.image('ground', 'assets/platform.png');
 this.load.image('star', 'assets/star (1).png');
